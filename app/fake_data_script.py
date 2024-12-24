@@ -27,7 +27,7 @@ def generate_realistic_caption():
         messages=[
             {
                 "role": "user",
-                "content": "Generate captions usually seen in social media apps.",
+                "content": "Generate a caption usually seen in social media platform.",
             }
         ],
     )
@@ -40,20 +40,57 @@ def generate_realistic_caption():
 
 
 # Function to generate realistic tags that are more realistic
-def generate_realistic_tags():
-    # You can use common social media hashtags or generate some meaningful words
-    common_hashtags = [
-        "#love",
-        "#life",
-        "#instagood",
-        "#fun",
-        "#photography",
-        "#happy",
-        "#fashion",
-    ]
-    return random.sample(
-        common_hashtags, random.randint(1, 5)
-    )  # Randomly select 1 to 5 tags
+# def generate_realistic_tags():
+#     # You can use common social media hashtags or generate some meaningful words
+#     common_hashtags = [
+#         "#love",
+#         "#life",
+#         "#instagood",
+#         "#fun",
+#         "#photography",
+#         "#happy",
+#         "#fashion",
+#     ]
+#     return random.sample(
+#         common_hashtags, random.randint(1, 5)
+#     )  # Randomly select 1 to 5 tags
+def generate_realistic_tags(caption):
+    """
+    Generates hashtags dynamically using LLaMA2 based on the provided caption.
+
+    Args:
+        caption (str): The caption for which to generate relevant hashtags.
+
+    Returns:
+        list: A list of generated hashtags.
+    """
+    try:
+        # Generate hashtags using LLaMA2
+        response = ollama.chat(
+            model="llama2",
+            messages=[
+                {
+                    "role": "user",
+                    "content": f'Generate a list of relevant hashtags for the following caption: "{caption}"',
+                }
+            ],
+        )
+
+        # Extract the hashtags from the response
+        if response and response.message and response.message.content:
+            # Split hashtags into a list, assuming they are comma-separated or newline-separated
+            hashtags = response.message.content.strip().split()
+            # Keep only valid hashtags that start with '#'
+            hashtags = [tag for tag in hashtags if tag.startswith("#")]
+        else:
+            print("Unexpected response format:", response)
+            hashtags = ["#default"]  # Fallback in case of errors
+
+    except Exception as e:
+        print(f"Error generating hashtags: {e}")
+        hashtags = ["#default"]  # Fallback in case of exceptions
+
+    return random.sample(hashtags, min(len(hashtags), random.randint(1, 5)))
 
 
 # Function to generate realistic comments using LLaMA
@@ -108,7 +145,7 @@ def generate_dummy_post(post_id):
     comments = generate_realistic_comments()
     post_saved = [f"user{random.randint(1, 1000)}" for _ in range(random.randint(1, 5))]
     views = [f"user{random.randint(1, 1000)}" for _ in range(random.randint(1, 10))]
-    tags = generate_realistic_tags()
+    tags = generate_realistic_tags(caption)
 
     # Return the post data (no image will be generated)
     return {
