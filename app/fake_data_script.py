@@ -10,13 +10,13 @@ fake = Faker()
 
 # MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
-db = client["social_media"]  # Use your database name
-posts_collection = db["posts"]  # Use your collection name
+db = client["social_media"]
+posts_collection = db["posts"]
 
-# Create a directory for storing generated images (even though we won't use it now)
-output_dir = "public/storage/images"
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
+# # Create a directory for storing generated images (even though we won't use it now)
+# output_dir = "public/storage/images"
+# if not os.path.exists(output_dir):
+#     os.makedirs(output_dir)
 
 
 # Function to generate realistic captions using LLaMA
@@ -27,13 +27,22 @@ def generate_realistic_caption():
         messages=[
             {
                 "role": "user",
-                "content": "Generate a caption usually seen in social media platform.",
+                "content": "Write a creative, engaging, and contextually appropriate caption with in 20 words",
             }
         ],
     )
     if response and response.message and response.message.content:
-        print(response.message.content.strip())
-        return response.message.content.strip()  # Extract and return the caption
+        captionz = response.message.content.strip()
+        # print(response.message.content.strip())
+        # Check and remove the unwanted prefix
+        prefix = "here is a possible caption for an Instagram post in under 15 words:"
+        if captionz.startswith(prefix):
+            captionz = captionz[len(prefix) :].strip()
+        else:
+            # print("Unexpected response format:", response)
+            captionz = response.message.content.strip()  # Fallback in case of errors
+
+        return captionz  # Extract and return the caption
     else:
         print("Unexpected response format:", response)
         return "Default caption"  # Provide a fallback caption in case of errors
@@ -105,7 +114,7 @@ def generate_realistic_comments():
             messages=[
                 {
                     "role": "user",
-                    "content": "Generate a realistic social media comment.",
+                    "content": "Generate a realistic social media comment under 15 words.",
                 }
             ],
         )
@@ -119,7 +128,7 @@ def generate_realistic_comments():
             if comment_text.startswith(prefix):
                 comment_text = comment_text[len(prefix) :].strip()
         else:
-            print("Unexpected response format:", response)
+            # print("Unexpected response format:", response)
             comment_text = "Default comment"  # Fallback in case of errors
 
         # Construct the comment structure
@@ -159,9 +168,7 @@ def generate_dummy_post(post_id):
         "postSaved": post_saved,
         "views": views,
         "tags": tags,
-        "image": os.path.join(
-            output_dir, filename
-        ),  # Path to the image (just filename)
+        "image": "hui.jpg",  # Path to the image (just filename)
     }
 
 

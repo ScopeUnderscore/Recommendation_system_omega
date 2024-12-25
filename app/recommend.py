@@ -40,7 +40,7 @@ if __name__ == "__main__":
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
     # Example text to generate target embedding
-    target_text = " pizza "
+    target_text = " sunset"
     target_embedding = model.encode(
         target_text
     ).tolist()  # This will have 384 dimensions

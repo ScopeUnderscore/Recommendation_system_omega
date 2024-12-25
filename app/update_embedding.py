@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 # MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
 try:
-    # This command will check the connection status
+    # Check the connection status
     client.admin.command("ping")
     print("MongoDB connection successful!")
 except Exception as e:
@@ -22,13 +22,16 @@ posts_collection = db["posts"]
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
-# Function to calculate embedding from text (e.g., caption or post content)
-def calculate_embedding(text):
-    logging.info(
-        f"Calculating embedding for text: {text[:30]}..."
-    )  # Log the first 30 characters for debugging
-    # print(model.encode(text).tolist())
-    return model.encode(text).tolist()
+# Function to calculate embedding from caption and tags
+def calculate_embedding(caption, tags=None):
+    # Combine caption and tags into a single string
+    if tags:
+        combined_text = f"{caption} {' '.join(tags)}"
+    else:
+        combined_text = caption
+
+    logging.info(f"Calculating embedding for text: {combined_text[:30]}...")
+    return model.encode(combined_text).tolist()
 
 
 # Function to calculate engagement score based on likes, views, and comments
@@ -54,8 +57,9 @@ def update_post(post_id):
 
         # Update embedding
         embedding = calculate_embedding(
-            post["caption"]
-        )  # or post["text"] depending on the field
+            post["caption"],
+            post.get("tags", None),  # Use tags if present
+        )
         posts_collection.update_one(
             {"_id": post_id}, {"$set": {"embedding": embedding}}
         )
