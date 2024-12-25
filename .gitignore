@@ -2,3 +2,7 @@ venv/
 public/
 test.py
 tempCodeRunnerFile.py
+LlamaForCausalL.py
+__pycache__/
+import torch.py
+testrun.py
